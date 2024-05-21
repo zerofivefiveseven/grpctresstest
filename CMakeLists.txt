@@ -9,8 +9,8 @@ add_subdirectory(client)
 add_subdirectory(server)
 
 INCLUDE(FindPkgConfig)
-
-pkg_check_modules(SYSTEMD REQUIRED IMPORTED_TARGET libsystemd)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SYSTEMD REQUIRED IMPORTED_TARGET systemd)
 set(CMAKE_PREFIX_PATH "cmake-build-debug/_deps/grpc-subbuild")
 include(FetchContent)
 FetchContent_Declare(
@@ -26,8 +26,8 @@ set(ABSL_ENABLE_INSTALL ON) # now you can enable install rules even in subprojec
 set(ABSL_ENABLE_INSTALL ON)
 FetchContent_Declare(
         absl
-        GIT_REPOSITORY https://github.com/abseil/abseil-cpp.git
-        GIT_TAG        origin/master
+        GIT_REPOSITORY github.com/abseil/abseil-cpp.git
+        GIT_TAG        master
         OVERRIDE_FIND_PACKAGE
 )
 FetchContent_MakeAvailable(absl)
