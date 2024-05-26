@@ -8,11 +8,44 @@ SET(ABSL_PROPAGATE_CXX_STD ON)
 add_subdirectory(client)
 add_subdirectory(server)
 
+#find_package(Protobuf REQUIRED)
+#find_package(gRPC CONFIG REQUIRED)
+
+include(FetchContent)
+
 INCLUDE(FindPkgConfig)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SYSTEMD REQUIRED IMPORTED_TARGET systemd)
 set(CMAKE_PREFIX_PATH "cmake-build-debug/_deps/grpc-subbuild")
-include(FetchContent)
+
+set(FETCHCONTENT_QUIET OFF)
+FetchContent_Declare(
+        gRPC
+        GIT_REPOSITORY https://github.com/grpc/grpc.git
+        GIT_TAG v1.58.1
+)
+
+FetchContent_MakeAvailable(gRPC)
+
+FetchContent_Declare(
+        protobuf
+        GIT_REPOSITORY https://github.com/protocolbuffers/protobuf.git
+        GIT_TAG v24.3
+        SOURCE_SUBDIR cmake
+        FIND_PACKAGE_ARGS NAMES protobuf
+)
+
+FetchContent_MakeAvailable(protobuf)
+
+set(ABSL_ENABLE_INSTALL ON) # now you can enable install rules even in subproject...
+FetchContent_Declare(
+        absl
+        GIT_REPOSITORY https://github.com/abseil/abseil-cpp.git
+        GIT_TAG        master
+        OVERRIDE_FIND_PACKAGE
+)
+FetchContent_MakeAvailable(absl)
+
 FetchContent_Declare(
         yandexapi
         GIT_REPOSITORY https://github.com/yandex-cloud/cloudapi.git
@@ -22,16 +55,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(yandexapi)
 set(BUILD_SHARED_LIBS OFF) # up to you
 set(BUILD_TESTING OFF) # to disable abseil test
-set(ABSL_ENABLE_INSTALL ON) # now you can enable install rules even in subproject...
-set(ABSL_ENABLE_INSTALL ON)
-FetchContent_Declare(
-        absl
-        GIT_REPOSITORY github.com/abseil/abseil-cpp.git
-        GIT_TAG        master
-        OVERRIDE_FIND_PACKAGE
-)
-FetchContent_MakeAvailable(absl)
-
 
 find_package(absl CONFIG REQUIRED)
 set(YAPIMOVE "${yandexapi_SOURCE_DIR}/google")
@@ -48,39 +71,12 @@ find_package(Threads)
 
 set(protobuf_MODULE_COMPATIBLE ON CACHE BOOL "")
 
-FetchContent_Declare(
-        protobuf
-        GIT_REPOSITORY https://github.com/protocolbuffers/protobuf.git
-        GIT_TAG v24.3
-        SOURCE_SUBDIR cmake
-        FIND_PACKAGE_ARGS NAMES protobuf
-)
-
-FetchContent_MakeAvailable(protobuf)
-
-set(ABSL_ENABLE_INSTALL ON)
-set(FETCHCONTENT_QUIET OFF)
-FetchContent_Declare(
-        gRPC
-        GIT_REPOSITORY https://github.com/grpc/grpc
-        GIT_TAG v1.58.1
-)
-
-FetchContent_MakeAvailable(gRPC)
-find_package(PkgConfig REQUIRED)
-pkg_search_module(GRPC REQUIRED grpc)
-pkg_search_module(GRPCPP REQUIRED grpc++>=1.22.0)
 set(Protobuf_IMPORT_DIRS ${yandexapi_SOURCE_DIR})
 find_package(PkgConfig REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIR})
 find_package(protobuf CONFIG REQUIRED)
 find_package(gRPC REQUIRED)
 find_package(c-aresAlt)
-
-
-
-
-
 
 
 include(CMakePrintHelpers)
