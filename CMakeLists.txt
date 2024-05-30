@@ -1,5 +1,15 @@
 cmake_minimum_required(VERSION 3.4)
 project(grpcstresstest)
+#cmake_policy(CMP0079 1)
+include(ExternalProject)
+include(FetchContent)
+FetchContent_Declare(D1CMakeModules
+        GIT_REPOSITORY https://git.protei.ru/yaskevich-p/d1cmakemodules.git
+)
+FetchContent_MakeAvailable(D1CMakeModules)
+
+protei_init(CXX_STANDARD c++20)
+
 project(example-grpc LANGUAGES CXX)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_CXX_STANDARD 17)
@@ -22,24 +32,24 @@ set(FETCHCONTENT_QUIET OFF)
 
 
 #FetchContent_Declare(
-#        protobuf
+#        Protobuf
 #        GIT_REPOSITORY https://github.com/protocolbuffers/protobuf.git
 #        GIT_TAG v27.0
 #        #        SOURCE_SUBDIR cmake
-#        FIND_PACKAGE_ARGS NAMES protobuf
+#        FIND_PACKAGE_ARGS NAMES Protobuf
 #)
 
-#FetchContent_MakeAvailable(protobuf)
-#find_package(protobuf CONFIG REQUIRED)
-set(BUILD_SHARED_LIBS OFF) # up to you
-set(BUILD_TESTING OFF) # to disable abseil test
-set(Abseil_ENABLE_INSTALL ON) # now you can enable install rules even in subproject...
-FetchContent_Declare(
-        Abseil
-        GIT_REPOSITORY https://github.com/abseil/abseil-cpp.git
-        GIT_TAG 20240116.2
-        )
-FetchContent_MakeAvailable(Abseil)
+#FetchContent_MakeAvailable(Protobuf)
+#find_package(Protobuf CONFIG REQUIRED)
+#set(BUILD_SHARED_LIBS OFF) # up to you
+#set(BUILD_TESTING OFF) # to disable abseil test
+#set(Abseil_ENABLE_INSTALL ON) # now you can enable install rules even in subproject...
+#FetchContent_Declare(
+#        Abseil
+#        GIT_REPOSITORY https://github.com/abseil/abseil-cpp.git
+#        GIT_TAG 20240116.2
+#        )
+#FetchContent_MakeAvailable(Abseil)
 FetchContent_Declare(
         yandexapi
         GIT_REPOSITORY https://github.com/yandex-cloud/cloudapi.git
@@ -48,7 +58,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(yandexapi)
 
-find_package(Abseil REQUIRED)
+#find_package(Abseil REQUIRED)
 set(YAPIMOVE "${yandexapi_SOURCE_DIR}/google")
 file(COPY ${yandexapi_SOURCE_DIR}/third_party/googleapis/google DESTINATION ${yandexapi_SOURCE_DIR})
 file(GLOB_RECURSE PROTO_FILES1 RELATIVE ${CMAKE_SOURCE_DIR} ${yandexapi_SOURCE_DIR}/google/*.proto)
@@ -61,12 +71,12 @@ include_directories(${PROTOBUF_INCLUDE_DIR})
 find_package(Threads)
 
 
-set(protobuf_MODULE_COMPATIBLE ON CACHE BOOL "")
+set(Protobuf_MODULE_COMPATIBLE ON CACHE BOOL "")
 
-set(protobuf_IMPORT_DIRS ${yandexapi_SOURCE_DIR})
+set(Protobuf_IMPORT_DIRS ${yandexapi_SOURCE_DIR})
 find_package(PkgConfig REQUIRED)
 #find_package(protobuf CONFIG REQUIRED)
-include_directories(${PROTOBUF_INCLUDE_DIR})
+#include_directories(${PROTOBUF_INCLUDE_DIR})
 
 
 FetchContent_Declare(
@@ -79,7 +89,7 @@ FetchContent_MakeAvailable(gRPC)
 #pkg_search_module(grpc REQUIRED grpc)
 #pkg_search_module(grpc REQUIRED grpc++>=1.22.0)
 find_package(gRPC REQUIRED)
-find_package(c-aresAlt)
+#find_package(c-aresAlt)
 
 
 include(CMakePrintHelpers)
@@ -89,13 +99,13 @@ cmake_print_variables(PROTO_FILES)
 add_library(myproto OBJECT ${PROTO_FILES})
 target_link_libraries(myproto
         PUBLIC
-        protobuf::libprotobuf
+#        Protobuf::libprotobuf
         gRPC::grpc
         gRPC::grpc++
-        Abseil::flags
-        Abseil::base
-        Abseil::synchronization
-        Abseil::strings
+#        Abseil::flags
+#        Abseil::base
+#        Abseil::synchronization
+#        Abseil::strings
 )
 
 set(PROTO_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
@@ -114,7 +124,7 @@ get_target_property(grpc_cpp_plugin_location gRPC::grpc_cpp_plugin LOCATION)
 cmake_print_variables(grpc_cpp_plugin_location)
 
 target_include_directories(myproto PUBLIC "$<BUILD_INTERFACE:${PROTO_BINARY_DIR}>")
-set(protobuf_MODULE_COMPATIBLE on)
+set(Protobuf_MODULE_COMPATIBLE on)
 #protobuf_generate(
 #        TARGET myproto
 #        LANGUAGE cpp
@@ -123,7 +133,7 @@ set(protobuf_MODULE_COMPATIBLE on)
 #        PROTOC_OUT_DIR "${PROTO_BINARY_DIR}"
 #        PROTOC_OPTIONS
 #)
-set(protobuf_MODULE_COMPATIBLE ON CACHE BOOL "")
+set(Protobuf_MODULE_COMPATIBLE ON CACHE BOOL "")
 protobuf_generate(
         TARGET myproto
         LANGUAGE grpc

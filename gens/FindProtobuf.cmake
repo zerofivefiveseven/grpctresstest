@@ -310,7 +310,7 @@ function(protobuf_generate)
   endforeach()
 
   if(NOT _protobuf_include_path)
-    set(_protobuf_include_path -I ${CMAKE_CURRENT_SOURCE_DIR})
+    set(_protobuf_include_path -I ../cmake)
   endif()
 
   set(_generated_srcs_all)
@@ -318,7 +318,7 @@ function(protobuf_generate)
     get_filename_component(_abs_file ${_proto} ABSOLUTE)
     get_filename_component(_abs_dir ${_abs_file} DIRECTORY)
     get_filename_component(_basename ${_proto} NAME_WLE)
-    file(RELATIVE_PATH _rel_dir ${CMAKE_CURRENT_SOURCE_DIR} ${_abs_dir})
+    file(RELATIVE_PATH _rel_dir ../cmake ${_abs_dir})
 
     set(_possible_rel_dir)
     if (NOT protobuf_generate_APPEND_PATH)
